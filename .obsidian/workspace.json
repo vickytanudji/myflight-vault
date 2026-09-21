@@ -11,17 +11,14 @@
             "id": "540f9286adddc723",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "split-diff-view",
               "state": {
-                "file": "Untitled.canvas",
-                "viewState": {
-                  "x": 0,
-                  "y": 0,
-                  "zoom": 0
-                }
+                "aFile": ".obsidian/workspace.json",
+                "bFile": ".obsidian/workspace.json",
+                "aRef": ""
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "Untitled"
+              "icon": "diff",
+              "title": "Diff: workspace.json  (Working Tree)"
             }
           }
         ]
@@ -102,7 +99,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Untitled.canvas",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -121,7 +117,6 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Untitled.canvas",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -164,7 +159,6 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Untitled.canvas",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -202,9 +196,20 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "b75d45d1a14bed0d",
+  "active": "198b50f3ee7ba7c9",
   "lastOpenFiles": [
     "Untitled.canvas",
+    "03-Testing/Test-Setup-And-Methodology.md",
+    "03-Testing/Frequency-Tuning-Retest-Checklist.md",
+    "02-Investigations/MSFS-2024-Support.md",
+    "02-Investigations/ChartFox-Procedures-Taxiways.md",
+    "02-Investigations/Center-Frequencies.md",
+    "02-Investigations/AI-FSLTL-Traffic.md",
+    "01-Architecture/SimConnect-Client.md",
+    "01-Architecture/Readback-Gating.md",
+    "01-Architecture/Phase-Detector.md",
+    "01-Architecture/Frequency-Tuned-Dispatch.md",
+    "01-Architecture/Flight-Load-Gate.md",
     "01-Architecture/ATC-Engine.md",
     "10-Workflow.md",
     "09-Standing-Reminders.md",
