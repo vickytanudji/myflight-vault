@@ -5,22 +5,25 @@ tags: [bugs, history]
 # Bug Log — This Session
 
 ## Connection handle leak on `AircraftRequests()`/`Request()` failure + related SimConnect robustness gaps
-**Status:** 🟡 Brief written (`fix/go-around-freq-llm-skip-connection-robustness`), not yet run by cc-sonnet.
-Three related gaps identified, all in `connect()`'s neighborhood, all previously flagged as "noticed but left alone":
-1. **Adjacent leak:** if `SimConnect()` succeeds but `AircraftRequests()`/`Request()` then raises, `self._sm` is dropped without `exit()` — same leak class as the already-fixed verification-read-`None` case.
-2. **Silent swallow:** `stop_polling()`'s `except Exception: pass` discards real cleanup failures with no log line.
-3. **Unguarded verification read:** an exception during the initial `PLANE_ALTITUDE` check (not just a `None` return) bypasses cleanup and can kill `reconnect_loop`.
-4. **Event-loop stall:** `reconnect_loop` calls `connect()` directly on the event loop — even with the watchdog timeout, a stalled attempt freezes voice/WebSocket for up to 10s. Fix: `asyncio.to_thread(self.connect)`.
+**Status:** ✅ Fixed, merged to `develop`. 17 new tests written first (15 failed on unfixed code, confirming they test something real). All 97 SimConnect tests pass. **MSFS 2020 live retest still outstanding.**
+All four gaps closed:
+1. **Adjacent leak (3a):** failures at all three exit points now route through one `_abandon_attempt()`, closing only the handle that specific attempt opened.
+2. **Silent swallow (3b):** `stop_polling()` now logs a WARNING on `exit()` failure. The broad `except Exception` was deliberately kept (not narrowed) — `main.stop()` runs `chartfox.close()`/`ws_server.stop()` right after, and narrowing risks an unexpected exception skipping both.
+3. **Unguarded verification read (3c):** now guarded, treated as an ordinary failed connection attempt; `reconnect_loop` survives a raising read.
+4. **Event-loop stall (3d):** `reconnect_loop` now calls `await asyncio.to_thread(self.connect)`. Confirmed a concurrent coroutine keeps running during a stall.
+
+**New follow-up items found, correctly left out of scope:**
+- `_run_or_skip`'s skip logic is broader than ideal — skips on any `APIStatusError`/`ValueError`/timeout, not just "no model loaded," so a real 500 with a model loaded could silently skip instead of fail. Pre-existing.
+- `stop_polling()`'s early-return: a connected-but-never-polled handle isn't closed on shutdown — a different leak scenario, not yet fixed.
+- Shutdown delay: if `reconnect_loop` is cancelled mid-attempt, the worker thread still finishes (up to 10s) before `asyncio.run` returns — same worst case as the old blocking behavior, not worse, just not eliminated.
 
 ## Go-Around free-response signature mismatch
-**Status:** 🟡 Brief written, not yet run.
-**Symptom:** `test_go_around_free_response_does_not_invent_squawk` fails on unmodified `develop` — `TypeError: _resolve_vectors_freq() missing 2 required positional arguments: 'flight_data' and 'freq_data'`.
-**Not yet determined:** whether this is a real production bug (the actual Go-Around free-response call site passing wrong args — would crash in production if this rare path ever fires) or a stale test written before `_resolve_vectors_freq()`'s signature changed (see the earlier "Go-Around vectoring frequency bug" fix). Surfaced only because LM Studio was unexpectedly reachable during a local test run — may have been silently masked by skip-on-unreachable in every prior session.
+**Status:** ✅ Fixed, merged. **Root cause: the TEST was stale, not production.** `go_around.py`'s real call site (`_resolve_vectors_freq(flight_data, freq_data)`) was always correct — 12 existing offline tests already exercised it correctly. The failing test called the function with the pre-async-refactor signature (no args, no await), written correctly at the time, made stale 83 minutes later when the function became async. It has been silently skipped ever since (LM Studio unreachable on Mac) so its broken body never actually ran until LM Studio became reachable. **No production bug ever existed.** Reproduced exactly, then fixed with a shared helper + a new always-on test against a stub client (doesn't need a real LLM).
 
 ## `requires_real_llm` skip decorator doesn't handle "reachable, no model loaded"
-**Status:** 🟡 Brief written, not yet run.
-**Symptom:** 7 adversarial LLM tests FAILED (not skipped) when LM Studio was reachable but had no model loaded — `openai.BadRequestError: "No models loaded..."` (400). The skip logic only checks for unreachable, not this reachable-but-empty case, producing confusing environment-dependent false failures.
-**Fix approach:** extend skip detection to catch this specific error shape too, without weakening real-failure detection once a model is actually loaded.
+**Status:** ✅ Fixed, merged. **The actual mechanism was different than first assumed:** `_run_or_skip` already correctly skipped on 400s for most tests. The 7 real failures were specifically the `handle_pilot_transmission` tests — that method **swallows every LLM exception internally and returns `""`**, so the 400 error never reaches the test's skip-detection at all; it just fails on `assert response` against an empty string.
+**Fix:** a module-scoped pre-flight check sends one 1-token real request and skips only on a 400 whose body specifically says "no model loaded" — every other outcome (200, 5xx, timeout, connection error, a different 400) gives no verdict, so genuine failures still fail normally. Verified against a fake LM Studio server reproducing the exact original symptom (8 failed/8 skipped/2 passed → fixed to 3 passed/16 skipped for that subset).
+**New item flagged, not fixed:** `handle_pilot_transmission` silently swallowing every LLM error and returning `""` is itself a production robustness gap — a pilot would get total silence with no "unable/standby" fallback on a real LLM failure. Worth a future look.
 
 Chronological, most-recent-relevant first. Each entry: symptom → root cause → fix → live-confirmation status.
 

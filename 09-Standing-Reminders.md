@@ -4,12 +4,13 @@ tags: [todo, reminders]
 
 # Standing Reminders — Check This Before Signing Off Each Session
 
-## Awaiting a cc-sonnet Run (brief already written, not yet executed)
-- [ ] **Combined fix brief** (`fix/go-around-freq-llm-skip-connection-robustness`) — fixes 3 things found tonight:
-  1. `test_go_around_free_response_does_not_invent_squawk` — `TypeError: _resolve_vectors_freq() missing 2 required positional arguments` — real pre-existing bug or stale test, root cause not yet determined
-  2. `requires_real_llm` skip decorator doesn't handle "LM Studio reachable but no model loaded" (400 error) — was causing false test failures instead of clean skips
-  3. Three SimConnect connection-robustness gaps: adjacent handle leak (`AircraftRequests()`/`Request()` raising after a successful `SimConnect()`), `stop_polling()`'s silent `except Exception: pass`, unguarded verification read, and moving `reconnect_loop`'s `connect()` call to `asyncio.to_thread` to stop event-loop stalls
-  See [[07-Bug-Log]] for full detail on each.
+## Awaiting Live Retest Only (code fixed and merged)
+- [ ] **SimConnect connection-robustness fixes** (handle leaks, silent swallow, unguarded read, event-loop stall) — all merged to `develop`, fully pytest-verified. **MSFS 2020 live retest still outstanding:** run the one-liner Python script, then `python -m core.main` with MSFS closed, then launch MSFS, then close/reopen it. See [[SimConnect-Client]].
+
+## New Follow-Up Items (found this session, correctly left out of scope for now)
+- [ ] `handle_pilot_transmission` silently swallows every LLM error and returns `""` — a pilot gets total silence on a real LLM failure instead of an "unable/standby" fallback. Worth a future brief.
+- [ ] `_run_or_skip`'s skip logic is broader than ideal — skips on any `APIStatusError`/`ValueError`/timeout, not just "no model loaded." A real 500 with a model loaded could silently skip instead of fail.
+- [ ] `stop_polling()`'s early-return: a connected-but-never-polled handle isn't closed on shutdown — a different leak scenario than the ones just fixed.
 
 ## Owed Live Tests
 - [ ] **Frequency-tuning scenario (e)** — Center-sparse fallback (Enroute) + Departure/Go-Around real-frequency requirement. Needs a longer flight past Ground/Tower Departure. Scenarios (a)-(d) all confirmed. See [[Frequency-Tuning-Retest-Checklist]].

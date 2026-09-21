@@ -39,9 +39,9 @@ Test environment: YSSY, manual callsign override cleared (real callsign path), P
 
 **Confirmed via smoke test (MSFS 2024):** all 25+ SimVars identical to 2020, dual-support formalized in docs.
 
-**Code written, not yet live-tested:** connection watchdog timeout (2020 retest owed).
+**Code written and merged, not yet live-tested:** connection watchdog timeout + all SimConnect robustness fixes (2020 retest owed).
 
-**Code written, not yet even run by cc-sonnet:** combined fix for the Go-Around signature bug, the LLM-skip-decorator gap, and 3 connection-robustness gaps — see [[09-Standing-Reminders]].
+**All 3 bugs from the combined fix brief are now resolved and merged** (Go-Around test was stale, not a real bug; LLM-skip gap fixed; all 4 SimConnect robustness sub-items fixed). 3 new minor follow-up items logged, not urgent — see [[09-Standing-Reminders]].
 
 **Still owed:** frequency-tuning scenario (e) on a longer flight; AI/FSLTL traffic probe live run; Enroute/Approach/Go-Around content review; MSFS 2024 camera-state value for the flight-load gate.
 
