@@ -26,5 +26,8 @@ In rough priority order:
 - Real Facility Data API (Center frequencies, AI traffic, procedures) — ruled impractical multiple times, don't re-open without new information
 - Go-Around's re-armed second-attempt template — fully built and tested but unreachable from live dispatch (engine's one-shot guard never re-arms) — a separate, known, not-currently-prioritized gap
 
+## Next test session
+A full step-by-step guide combining all 5 owed items into one plan is ready: [[Next-Test-Session-Guide]]
+
 ## For full detail
 See [[00-Home]] for the full dashboard, [[09-Standing-Reminders]] for the complete checklist with links, [[07-Bug-Log]] for everything fixed this session.

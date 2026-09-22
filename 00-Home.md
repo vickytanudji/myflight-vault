@@ -30,6 +30,7 @@ AI-generated, phraseology-accurate ATC add-on for Microsoft Flight Simulator. Po
 - [[MSFS-2024-Support|MSFS 2024 Support — PURSUE (confirmed working)]]
 
 ## Testing
+- [[Next-Test-Session-Guide|✅ Next Test Session — step by step]]
 - [[Test-Setup-And-Methodology]]
 - [[Frequency-Tuning-Retest-Checklist]]
 
