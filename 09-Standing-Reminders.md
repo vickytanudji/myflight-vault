@@ -4,16 +4,8 @@ tags: [todo, reminders]
 
 # Standing Reminders — Check This Before Signing Off Each Session
 
-## Awaiting a cc-sonnet Run (brief written, not yet executed)
-- [ ] **Combined fix brief** (`fix/pilot-transmission-fallback-skip-narrowing-stop-polling-leak`) — fixes 3 things:
-  1. `handle_pilot_transmission` returns a generic in-character fallback phrase instead of silence on any LLM failure
-  2. `_run_or_skip`'s skip logic narrowed to genuine unreachability only, not a broad exception catch-all
-  3. `stop_polling()` now closes a connected-but-never-polled handle on shutdown
-  See [[07-Bug-Log]] for full context on each origin.
-
-## Awaiting Live Retest Only (code fixed and merged)
-- [ ] **SimConnect connection-robustness fixes** (handle leaks, silent swallow, unguarded read, event-loop stall) — all merged to `develop`, fully pytest-verified. **MSFS 2020 live retest still outstanding:** run the one-liner Python script, then `python -m core.main` with MSFS closed, then launch MSFS, then close/reopen it. See [[SimConnect-Client]].
-- [ ] **Connection watchdog + dual-sim docs branch** — code is written and merged, MSFS 2020 live retest still not run.
+## Awaiting Live Retest Only (all code fixed and merged)
+- [ ] **SimConnect connection-robustness fixes** (handle leaks incl. the never-polled-handle case, silent swallow, unguarded read, event-loop stall, watchdog timeout) — all merged to `develop`, fully pytest-verified (1218 passed, 16 pre-existing skips). **MSFS 2020 live retest still outstanding for all of it:** run the one-liner Python script, then `python -m core.main` with MSFS closed, then launch MSFS, then close/reopen it — specifically also test a shutdown right after a successful connect (before `start_polling()`), to exercise the newest fix. See [[SimConnect-Client]].
 
 ## Owed Live Tests
 - [ ] **Frequency-tuning scenario (e)** — Center-sparse fallback (Enroute) + Departure/Go-Around real-frequency requirement. Needs a longer flight past Ground/Tower Departure. Scenarios (a)-(d) all confirmed. See [[Frequency-Tuning-Retest-Checklist]].
@@ -32,5 +24,5 @@ tags: [todo, reminders]
 - [ ] Real Facility Data API investigation for anything (Center freq, AI traffic, procedures) — already ruled impractical multiple times; don't re-open without new information
 
 ## Vault / Workflow Housekeeping
-- [ ] This vault now lives at `github.com/vickytanudji/myflight-vault` (**public**, no auth needed to read) and is edited directly on **Mac** via a filesystem connector, then synced to GitHub, then pulled onto the PC via the Obsidian Git plugin.
+- [ ] This vault lives at `github.com/vickytanudji/myflight-vault` (**public**, no auth needed to read) and is now edited **directly on Mac** via a filesystem connector — no more GitHub round-trip needed for Claude to update it. Push to GitHub / pull onto the PC via Obsidian Git remains the user's responsibility.
 - [ ] Any GitHub PAT shared in chat for a push is single-use per session — Claude has no persistent credential storage. Regenerate/revoke tokens after use as a matter of course.

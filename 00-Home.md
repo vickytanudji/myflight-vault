@@ -39,12 +39,10 @@ Test environment: YSSY, manual callsign override cleared (real callsign path), P
 
 **Confirmed via smoke test (MSFS 2024):** all 25+ SimVars identical to 2020, dual-support formalized in docs.
 
-**Code written and merged, not yet live-tested:** connection watchdog timeout + all SimConnect robustness fixes (2020 retest owed).
+**All SimConnect connection-robustness work is now code-complete and merged** (watchdog timeout, adjacent leak, silent swallow, unguarded read, event-loop stall, never-polled-handle leak — 6 sub-fixes across 2 briefs, 102 tests passing). **MSFS 2020 live retest of all of it is the single biggest outstanding item** — nothing in this whole area has touched a real sim yet.
 
-**All 3 bugs from the combined fix brief are now resolved and merged** (Go-Around test was stale, not a real bug; LLM-skip gap fixed; all 4 SimConnect robustness sub-items fixed). 3 new minor follow-up items logged, not urgent — see [[09-Standing-Reminders]].
+**All bugs from both combined fix briefs are resolved and merged**: Go-Around test was stale (no real bug), LLM-skip gap fixed, pilot-transmission silent-failure fallback fixed, `_run_or_skip` narrowed correctly. 1218 tests passing, 16 pre-existing skips, zero known regressions.
 
-**Also in progress:** a fourth combined brief (pilot-transmission LLM-failure fallback, narrowing `_run_or_skip`'s skip logic, closing the never-polled-handle leak) — written, not yet run by cc-sonnet.
+**Still owed:** frequency-tuning scenario (e) on a longer flight; AI/FSLTL traffic probe live run; Enroute/Approach/Go-Around content review; MSFS 2024 camera-state value for the flight-load gate; the connection-robustness live retest above.
 
-**Still owed:** frequency-tuning scenario (e) on a longer flight; AI/FSLTL traffic probe live run; Enroute/Approach/Go-Around content review; MSFS 2024 camera-state value for the flight-load gate.
-
-**Vault sync:** this vault lives at `github.com/vickytanudji/myflight-vault` (public), synced via `git pull`/`git push` and the Obsidian Git plugin. Now edited directly on Mac.
+**Vault sync:** this vault lives at `github.com/vickytanudji/myflight-vault` (public). **Claude now edits it directly on Mac** via a filesystem connector — no GitHub round-trip needed for updates. Pushing to GitHub / pulling onto the PC via Obsidian Git remains a manual step for the user.

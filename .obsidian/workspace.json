@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "38e7af4fd52189d4",
+        "id": "28e4b8dbaefd582f",
         "type": "tabs",
         "children": [
           {
-            "id": "540f9286adddc723",
+            "id": "2e29d8fcd49c0d2d",
             "type": "leaf",
             "state": {
-              "type": "split-diff-view",
-              "state": {
-                "aFile": ".obsidian/workspace.json",
-                "bFile": ".obsidian/workspace.json",
-                "aRef": ""
-              },
-              "icon": "diff",
-              "title": "Diff: workspace.json  (Working Tree)"
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
             }
           }
         ]
@@ -196,7 +192,7 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "198b50f3ee7ba7c9",
+  "active": "2e29d8fcd49c0d2d",
   "lastOpenFiles": [
     "Untitled.canvas",
     "03-Testing/Test-Setup-And-Methodology.md",

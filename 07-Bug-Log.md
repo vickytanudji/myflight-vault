@@ -6,18 +6,35 @@ tags: [bugs, history]
 
 Chronological, most-recent-relevant first. Each entry: symptom → root cause → fix → live-confirmation status.
 
+## `handle_pilot_transmission` silently swallowed LLM errors, returning `""`
+**Status:** ✅ Fixed, merged. **Confirmed symptom first:** `_voice_loop` only synthesizes/plays `if response:` — an empty string is genuinely silent, not some other visible failure.
+**Fix:** the except-block now returns `SAY_AGAIN_FALLBACK_TRANSMISSION = "Say again."` (new frozen phraseology constant, `docs/phraseology_reference.md` §11, PROVISIONAL confidence like the existing §10 correction template) instead of `""`. Deliberately generic/non-phase-specific — the failure can occur before any phase data resolves, so inventing phase-specific content risks the same fabrication-under-uncertainty problem the earlier adversarial-testing fix addressed. "Say again" chosen over "stand by" because it actually prompts a retry rather than leaving the pilot hanging with nothing to do. Error logging (`logger.exception`, `send_error`) unchanged.
+**Tests:** 22 new tests — every exception type `LLMClient.complete` can raise, all 9 phases, logging still verified, success path unaffected, plus an end-to-end voice-loop test proving the fallback reaches TTS (and that a genuine `""` elsewhere still stays silent — pinning that gate, not changing it).
+
+## `_run_or_skip`'s skip logic was broader than intended
+**Status:** ✅ Fixed, merged. Old catch: `(APIConnectionError, APIStatusError, asyncio.TimeoutError, ValueError)` — all skipped, independent of the pre-flight check.
+**New line drawn (empirically verified, not assumed):**
+- **Still skips:** `APIConnectionError` excluding its `APITimeoutError` subclass (confirmed via actually probing a refused port and a DNS failure — both raise exactly this, never `APITimeoutError`); and `APIStatusError` matching the pre-flight check's own exact "no model loaded" signature (covers the model unloading between the pre-flight check and this specific call).
+- **No longer skips (now fails):** `APITimeoutError` — AsyncOpenAI's default connect timeout is 5s, well under the 30s outer bound, so a timeout here means the connection succeeded and something hung. Genuinely ambiguous case, resolved by failing (the brief's explicit tie-breaker: a false failure you can investigate beats a false skip that hides a regression). Also no longer skips: other `APIStatusError`s (real 500s), plain `ValueError` (malformed/empty completion), the outer `asyncio.wait_for` timeout.
+**Tests:** 9 new offline unit tests, confirmed red against the old broad implementation first, then green. Pre-flight check itself untouched, its own 15 tests unaffected.
+
+## `stop_polling()` leaked a connected-but-never-polled handle
+**Status:** ✅ Fixed, merged. **Root cause confirmed:** `if not self._running: ...; return` skipped the entire handle-cleanup block below it — so `connect()` succeeding without a subsequent `start_polling()` left the handle open forever.
+**Fix:** thread-join logic stays gated on `self._running` (normal path unchanged), but handle cleanup now always runs afterward. Extracted into a new `_close_handle()` helper, reusing the `_abandon_attempt()` pattern — deliberately keeps `stop_polling`'s broader exception catch (not narrowed to `AttributeError`/`OSError`) since `main.stop()` still runs `chartfox.close()`/`ws_server.stop()` afterward either way.
+**Tests:** confirmed red on unfixed code first, then green. Full existing SimConnect suite (102 tests) passes unchanged.
+**Still outstanding:** live MSFS retest for this specific shutdown-right-after-connect sequence — hard to fully prove via mocks alone, folded into the next connection-robustness PC session.
+
+**Combined verification for all three above:** `pytest tests/` → 1218 passed, 16 skipped (same pre-existing real-LLM skips, none new — baseline was 1184/16). 34 new tests, all green. `black --check .` clean repo-wide. No `%`-style loguru introduced.
+
+---
+
 ## Connection handle leak on `AircraftRequests()`/`Request()` failure + related SimConnect robustness gaps
-**Status:** ✅ Fixed, merged to `develop`. 17 new tests written first (15 failed on unfixed code, confirming they test something real). All 97 SimConnect tests pass. **MSFS 2020 live retest still outstanding.**
+**Status:** ✅ Fixed, merged to `develop`. 17 new tests written first (15 failed on unfixed code, confirming they test something real). All 97 SimConnect tests pass. **MSFS 2020 live retest still outstanding** (now bundled with the item above's retest too).
 All four gaps closed:
 1. **Adjacent leak (3a):** failures at all three exit points now route through one `_abandon_attempt()`, closing only the handle that specific attempt opened.
 2. **Silent swallow (3b):** `stop_polling()` now logs a WARNING on `exit()` failure. The broad `except Exception` was deliberately kept (not narrowed) — `main.stop()` runs `chartfox.close()`/`ws_server.stop()` right after, and narrowing risks an unexpected exception skipping both.
 3. **Unguarded verification read (3c):** now guarded, treated as an ordinary failed connection attempt; `reconnect_loop` survives a raising read.
 4. **Event-loop stall (3d):** `reconnect_loop` now calls `await asyncio.to_thread(self.connect)`. Confirmed a concurrent coroutine keeps running during a stall.
-
-**New follow-up items found, correctly left out of scope — now being addressed in a follow-up brief (see [[09-Standing-Reminders]]):**
-- `_run_or_skip`'s skip logic is broader than ideal — skips on any `APIStatusError`/`ValueError`/timeout, not just "no model loaded," so a real 500 with a model loaded could silently skip instead of fail. Pre-existing.
-- `stop_polling()`'s early-return: a connected-but-never-polled handle isn't closed on shutdown — a different leak scenario, not yet fixed.
-- Shutdown delay: if `reconnect_loop` is cancelled mid-attempt, the worker thread still finishes (up to 10s) before `asyncio.run` returns — same worst case as the old blocking behavior, not worse, just not eliminated.
 
 ## Go-Around free-response signature mismatch
 **Status:** ✅ Fixed, merged. **Root cause: the TEST was stale, not production.** `go_around.py`'s real call site (`_resolve_vectors_freq(flight_data, freq_data)`) was always correct — 12 existing offline tests already exercised it correctly. The failing test called the function with the pre-async-refactor signature (no args, no await), written correctly at the time, made stale 83 minutes later when the function became async. It has been silently skipped ever since (LM Studio unreachable on Mac) so its broken body never actually ran until LM Studio became reachable. **No production bug ever existed.** Reproduced exactly, then fixed with a shared helper + a new always-on test against a stub client (doesn't need a real LLM).
@@ -25,7 +42,6 @@ All four gaps closed:
 ## `requires_real_llm` skip decorator doesn't handle "reachable, no model loaded"
 **Status:** ✅ Fixed, merged. **The actual mechanism was different than first assumed:** `_run_or_skip` already correctly skipped on 400s for most tests. The 7 real failures were specifically the `handle_pilot_transmission` tests — that method **swallows every LLM exception internally and returns `""`**, so the 400 error never reaches the test's skip-detection at all; it just fails on `assert response` against an empty string.
 **Fix:** a module-scoped pre-flight check sends one 1-token real request and skips only on a 400 whose body specifically says "no model loaded" — every other outcome (200, 5xx, timeout, connection error, a different 400) gives no verdict, so genuine failures still fail normally. Verified against a fake LM Studio server reproducing the exact original symptom (8 failed/8 skipped/2 passed → fixed to 3 passed/16 skipped for that subset).
-**New item flagged, not fixed — now being addressed in a follow-up brief:** `handle_pilot_transmission` silently swallowing every LLM error and returning `""` is itself a production robustness gap — a pilot would get total silence with no "unable/standby" fallback on a real LLM failure.
 
 ## `ATC RUNWAY AIRPORT NAME` returns display name, not ICAO code
 **Symptom:** MSFS 2024 smoke test showed `'Kingsford Smith Intl'` instead of `YSSY`.
