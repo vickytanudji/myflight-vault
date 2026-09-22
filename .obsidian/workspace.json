@@ -11,10 +11,14 @@
             "id": "2e29d8fcd49c0d2d",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "type": "markdown",
+              "state": {
+                "file": "01-Whats-Happening.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "01-Whats-Happening"
             }
           }
         ]
@@ -95,6 +99,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "01-Whats-Happening.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -113,6 +118,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "01-Whats-Happening.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -155,6 +161,7 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "01-Whats-Happening.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -194,26 +201,27 @@
   },
   "active": "2e29d8fcd49c0d2d",
   "lastOpenFiles": [
-    "Untitled.canvas",
-    "03-Testing/Test-Setup-And-Methodology.md",
-    "03-Testing/Frequency-Tuning-Retest-Checklist.md",
-    "02-Investigations/MSFS-2024-Support.md",
-    "02-Investigations/ChartFox-Procedures-Taxiways.md",
-    "02-Investigations/Center-Frequencies.md",
-    "02-Investigations/AI-FSLTL-Traffic.md",
+    "00-Home.md",
+    "01-Whats-Happening.md",
+    "10-Workflow.md",
+    "02-Roadmap.md",
     "01-Architecture/SimConnect-Client.md",
-    "01-Architecture/Readback-Gating.md",
     "01-Architecture/Phase-Detector.md",
+    "01-Architecture/Readback-Gating.md",
     "01-Architecture/Frequency-Tuned-Dispatch.md",
     "01-Architecture/Flight-Load-Gate.md",
     "01-Architecture/ATC-Engine.md",
-    "10-Workflow.md",
-    "09-Standing-Reminders.md",
-    "08-Gotchas-And-Quirks.md",
-    "07-Bug-Log.md",
-    "02-Roadmap.md",
+    "02-Investigations/MSFS-2024-Support.md",
+    "03-Testing/Frequency-Tuning-Retest-Checklist.md",
     "01-Overview.md",
-    "00-Home.md",
+    "07-Bug-Log.md",
+    "08-Gotchas-And-Quirks.md",
+    "09-Standing-Reminders.md",
+    "Untitled.canvas",
+    "03-Testing/Test-Setup-And-Methodology.md",
+    "02-Investigations/ChartFox-Procedures-Taxiways.md",
+    "02-Investigations/Center-Frequencies.md",
+    "02-Investigations/AI-FSLTL-Traffic.md",
     "03-Testing",
     "02-Investigations",
     "01-Architecture"
