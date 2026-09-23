@@ -4,7 +4,14 @@ tags: [todo, reminders]
 
 # Standing Reminders — Check This Before Signing Off Each Session
 
+<<<<<<< HEAD
+## ⚠️ REGRESSION FOUND — Priority Fix Needed
+- [ ] **SimConnect connection-robustness fix did NOT work as intended.** Live retest (2026-09-23) reproduced the exact `AttributeError: 'SimConnect' object has no attribute 'timerThread'` the original leak fix was supposed to eliminate — hit on every single retry attempt (16+ consecutive) with MSFS closed. The watchdog timeout itself works (fails fast, no hang), but the cleanup call afterward still throws, and the warning text itself says "the handle may not have been released." **This needs its own fix brief before trusting anything else in the connection-robustness area.** Also found in the same session: unexplained console spam of raw `SIM def(...)` lines during flight-load-gate polling — possibly related, possibly separate, needs investigation. See [[SimConnect-Client]] for full detail.
+
+## Awaiting Live Retest Only (code merged, partially disproven above)
+=======
 ## Awaiting Live Retest Only (all code fixed and merged)
+>>>>>>> origin/main
 - [ ] **SimConnect connection-robustness fixes** (handle leaks incl. the never-polled-handle case, silent swallow, unguarded read, event-loop stall, watchdog timeout) — all merged to `develop`, fully pytest-verified (1218 passed, 16 pre-existing skips). **MSFS 2020 live retest still outstanding for all of it:** run the one-liner Python script, then `python -m core.main` with MSFS closed, then launch MSFS, then close/reopen it — specifically also test a shutdown right after a successful connect (before `start_polling()`), to exercise the newest fix. See [[SimConnect-Client]].
 - [ ] **Enroute/Approach/Go-Around template content fix** — merged, 1219 tests passing. **Live retest owed:** confirm Enroute's restored cruise check-in, Departure→Center handoff happens exactly once (not duplicated across the two phases), Approach's combined descend+clearance+Tower-handoff sounds right, Go-Around's restored vectoring frequency is audible on the first attempt and uses a real value at YSSY (not the synthetic fallback). See [[Readback-Gating]] and [[Frequency-Tuned-Dispatch]] for how these phases interact with gating.
 
