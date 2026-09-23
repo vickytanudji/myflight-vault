@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "28e4b8dbaefd582f",
+        "id": "e924e81c828ad05f",
         "type": "tabs",
         "children": [
           {
-            "id": "2e29d8fcd49c0d2d",
+            "id": "87de90c670e84922",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "split-diff-view",
               "state": {
-                "file": "01-Whats-Happening.md",
-                "mode": "source",
-                "source": false
+                "aFile": "00-Home.md",
+                "bFile": "00-Home.md",
+                "aRef": ""
               },
-              "icon": "lucide-file",
-              "title": "01-Whats-Happening"
+              "icon": "diff",
+              "title": "Diff: 00-Home  (Working Tree)"
             }
           }
         ]
@@ -99,7 +99,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "01-Whats-Happening.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -118,7 +117,6 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "01-Whats-Happening.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -161,7 +159,6 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "01-Whats-Happening.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -199,10 +196,13 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "198b50f3ee7ba7c9",
+  "active": "87de90c670e84922",
   "lastOpenFiles": [
     "03-Testing/Next-Test-Session-Guide.md",
     "00-Home.md",
+    "09-Standing-Reminders.md",
+    "03-Testing/Test-Setup-And-Methodology.md",
+    "03-Testing/Frequency-Tuning-Retest-Checklist.md",
     "01-Whats-Happening.md",
     "10-Workflow.md",
     "02-Roadmap.md",
@@ -213,13 +213,10 @@
     "01-Architecture/Flight-Load-Gate.md",
     "01-Architecture/ATC-Engine.md",
     "02-Investigations/MSFS-2024-Support.md",
-    "03-Testing/Frequency-Tuning-Retest-Checklist.md",
     "01-Overview.md",
     "07-Bug-Log.md",
     "08-Gotchas-And-Quirks.md",
-    "09-Standing-Reminders.md",
     "Untitled.canvas",
-    "03-Testing/Test-Setup-And-Methodology.md",
     "02-Investigations/ChartFox-Procedures-Taxiways.md",
     "02-Investigations/Center-Frequencies.md",
     "02-Investigations/AI-FSLTL-Traffic.md",
