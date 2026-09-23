@@ -41,7 +41,7 @@ Test environment: YSSY, manual callsign override cleared (real callsign path), P
 
 **Confirmed via smoke test (MSFS 2024):** all 25+ SimVars identical to 2020, dual-support formalized in docs.
 
-**All SimConnect connection-robustness work is now code-complete and merged** (watchdog timeout, adjacent leak, silent swallow, unguarded read, event-loop stall, never-polled-handle leak — 6 sub-fixes across 2 briefs, 102 tests passing). **MSFS 2020 live retest of all of it is a top outstanding item** — nothing in this whole area has touched a real sim yet.
+**⚠️ REGRESSION FOUND (live retest, 2026-09-23):** the connection-cleanup fix reproducibly still throws `AttributeError: 'SimConnect' object has no attribute 'timerThread'` on every failed-connect retry — the exact bug the fix was supposed to close. A new fix brief is needed before trusting this area. See [[SimConnect-Client]] and [[09-Standing-Reminders]].
 
 **Enroute/Approach/Go-Around content review is DONE — the long-deferred review finally happened, and real fixes landed.** Enroute's redundant Center handoff removed (Departure already does it, real content restored: cruise-altitude check-in). Approach now combines descend instruction + clearance + Tower handoff in one transmission (PROVISIONAL, documented as a scoping decision matching this project's one-transmission-per-phase pattern, not a Doc 4444 citation). Go-Around's vectoring-frequency handoff restored on the first attempt (was a real functional gap — a pilot going around needs to know what frequency to contact). 1219 tests passing. **Live retest owed** — see [[09-Standing-Reminders]].
 
