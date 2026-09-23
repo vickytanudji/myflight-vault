@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "e924e81c828ad05f",
+        "id": "75de0c4cc53a07e1",
         "type": "tabs",
         "children": [
           {
-            "id": "87de90c670e84922",
+            "id": "26a428cb174991e4",
             "type": "leaf",
             "state": {
-              "type": "split-diff-view",
+              "type": "markdown",
               "state": {
-                "aFile": "00-Home.md",
-                "bFile": "00-Home.md",
-                "aRef": ""
+                "file": "03-Testing/Next-Test-Session-Guide.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "diff",
-              "title": "Diff: 00-Home  (Working Tree)"
+              "icon": "lucide-file",
+              "title": "Next-Test-Session-Guide"
             }
           }
         ]
@@ -99,6 +99,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "03-Testing/Next-Test-Session-Guide.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -117,6 +118,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "03-Testing/Next-Test-Session-Guide.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -159,7 +161,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "conflict-files-obsidian-git.md",
+                "file": "03-Testing/Next-Test-Session-Guide.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -197,7 +199,7 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "198b50f3ee7ba7c9",
+  "active": "26a428cb174991e4",
   "lastOpenFiles": [
     "conflict-files-obsidian-git.md",
     "03-Testing/Next-Test-Session-Guide.md",
