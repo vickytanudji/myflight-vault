@@ -34,9 +34,10 @@ See [[Readback-Gating]] — a separate, additive layer on top of dispatch: after
 - **Does NOT bypass:** the flight-load gate (fixed after initial oversight), or the one-shot guard
 - Test harness: `python -m tools.send_ws_request --type request_clearance`
 
-## Known Un-Fixed Robustness Gaps (found, not yet fixed as of last session)
-- `stop_polling()`'s `except Exception: pass` around exit() swallows failures silently
-- Same handle-leak class as the fixed one, but in the *first* except branch (if `AircraftRequests()`/`Request()` raises after `SimConnect()` succeeds)
-- The verification read itself is unguarded — an exception there bypasses cleanup and kills `reconnect_loop`
+## SimConnect Connection Robustness — ✅ All Fixed & Merged
+The four robustness gaps once tracked here (adjacent handle leak, silent `stop_polling()` swallow, unguarded verification read, event-loop stall on `reconnect_loop`) are **all fixed and merged**. Full detail in [[SimConnect-Client]]. **MSFS 2020 live retest of these fixes is still outstanding.**
 
-> These three are all in [[SimConnect-Client]]'s `connect()` — same bug class as the fixed leak, different trigger points. Worth a follow-up brief.
+Three smaller follow-up items surfaced during that work and are queued in a new brief (not yet run) — see [[07-Bug-Log]] and [[09-Standing-Reminders]]:
+- `handle_pilot_transmission` returning silence (`""`) instead of a fallback phrase on LLM failure
+- `_run_or_skip`'s test-skip logic being broader than ideal
+- `stop_polling()`'s early-return not closing a connected-but-never-polled handle

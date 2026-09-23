@@ -53,4 +53,5 @@ See [[MSFS-2024-Support]]. All SimVars identical between 2020/2024. Live smoke t
 - [ ] Doc 4444/LiveATC validation of 6 PROVISIONAL phraseology templates — deferred to polish phase
 - [ ] Dangling doc references in `frequency_gate.py` / probe scripts pointing at unmerged investigation-branch docs (cosmetic)
 - [ ] `CLAUDE.md`'s "Active work now (Month 4, Step 1)" paragraph is stale re: current-airport resolution (now solved via GPS-based `resolve_departure_icao`)
-- [ ] **New (flagged, not yet briefed):** prevent the entire process (incl. ATIS) from starting until a real flight loads — ~~this is now DONE~~ see [[Flight-Load-Gate]] ✅ confirmed live
+- [x] Prevent the entire process (incl. ATIS) from starting until a real flight loads — see [[Flight-Load-Gate]] ✅ confirmed live
+- [ ] **New brief in flight (not yet run):** pilot-transmission LLM-failure fallback phrase, narrowing `_run_or_skip`'s skip logic, closing the never-polled-handle leak — see [[09-Standing-Reminders]]

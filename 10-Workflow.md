@@ -69,6 +69,10 @@ python -m core.main
 6. **Don't bundle unrelated changes into one brief** unless they're genuinely related (e.g. two bugs in the same subsystem found together) — keeps regression-testing isolated and debuggable.
 7. **Test-first discipline for bug fixes:** write the regression test, confirm it fails against the old code, then fix. cc-sonnet has done this consistently and it's caught real issues.
 8. **Mutation testing for critical logic:** deliberately break the fix N different ways, confirm tests catch each one — used successfully for the frequency-gating and readback-gating work.
+9. **When cc-sonnet's diagnosis differs from the brief's assumption, trust the diagnosis, not the brief.** Several times this session (the Go-Around test being stale vs. real, the actual mechanism behind the LLM-skip gap) cc-sonnet's own investigation corrected a wrong premise baked into the brief itself — always read the "what I actually found differs from the brief" callouts carefully.
 
 ## Uploading Files to This Chat
 Text/log file uploads have been broken all session — always come through empty. **Paste terminal/log output directly as plain text in the message body.** Screenshots work fine.
+
+## Vault Maintenance (this document)
+This vault is edited directly by Claude via a filesystem connector — access is granted per-conversation-turn and is **not persistent**; it may or may not be available in any given message. It's also synced to GitHub (`github.com/vickytanudji/myflight-vault`, public) as a backup/cross-device sync path — Claude can clone/pull/push that repo from its own sandboxed environment using a short-lived, session-only credential if asked, but has no way to store that credential between conversations.

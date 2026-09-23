@@ -35,3 +35,6 @@ Investigated and confirmed: the file's wrong unit-conversion claims (radians vs 
 
 ## Manual Trigger Bypass Scope (memorize this)
 The manual `request_clearance` trigger bypasses **phase detection** and the **frequency gate** — by design, that's the point of a manual override. It does **NOT** bypass the **flight-load gate** or the **one-shot guard**. If you're deciding whether a new manual-trigger-adjacent feature should bypass something, this is the precedent to follow.
+
+## Test-Skip Logic Has Its Own Failure Modes
+`_run_or_skip`'s original skip logic was too broad (skipped on any `APIStatusError`/`ValueError`/timeout) — meaning a real bug could masquerade as "LM Studio unreachable" and silently vanish instead of failing. A narrower pre-flight check was added for the specific "reachable but no model loaded" case, but the broader over-skipping issue itself is a separate, still-open item. **Lesson: a test-infrastructure skip condition needs the same scrutiny as production code — an overly generous skip is a silent hole in your safety net.**

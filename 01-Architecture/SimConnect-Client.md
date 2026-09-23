@@ -27,18 +27,24 @@ tags: [architecture, simconnect]
 
 **Not salvageable for ICAO resolution** — the raw value was never ICAO-shaped in anything found, and deriving a code from the name isn't safe (airportsdata's names don't match SimConnect's display names, and name collisions exist across ~973 airports).
 
-## Connection Handle Leak (found & partially fixed this session)
-**Confirmed real:** `connect()`'s verification-read-returns-`None` branch dropped `self._sm` **without calling `exit()`** — leaks a handle + daemon dispatch thread per failed attempt.
-- **Fixed:** now calls a `_release_simconnect()` helper on this path, catching both `AttributeError` *and* `OSError` (the wheel's `SimConnect_Close` has `restype=HRESULT`, so a failed close can raise `OSError` — this would otherwise escape and kill `reconnect_loop`).
-- **Practical impact assessed:** ~12 leaks/minute if this state is hit repeatedly (5s retry interval) — but likely **does NOT affect the main-menu scenario** specifically, since MSFS keeps answering polls there and `connect()` succeeds without retrying. The leak needs a state where the handle opens but the sim doesn't answer (e.g. mid-load).
+## Connection Robustness — ✅ Fully Fixed & Merged (this session)
 
-### Still Open (found, not yet fixed)
-1. `stop_polling()`'s `except Exception: pass` — silently swallows cleanup failures
-2. **Same leak class, different branch:** if `SimConnect()` succeeds but `AircraftRequests()`/`Request()` then raises, `self._sm` is dropped without `exit()` too
-3. **Unguarded verification read** — an exception there (not just a `None` return) bypasses cleanup entirely and kills `reconnect_loop`
-4. **No timeout on the underlying wait** — ✅ **FIXED.** `python-SimConnect`'s `SimConnect()` constructor has an unbounded `while self.ok is False: pass` (confirmed directly against the pinned 0.4.26 wheel's source). A 10-second watchdog was added to production `client.py` (`feat/formalize-dual-sim-support` branch): on timeout, the wheel's own `ok` flag is set so the spin loop exits and the handle closes (no thread pile-up per retry, confirmed via a 3-timeouts-in-a-row test). Integrates cleanly with `reconnect_loop`'s existing retry — a timeout is treated as any other failed attempt. **One residual limit:** a worker stuck inside a native `Open` call can only be abandoned, not killed — closes its own handle if the call ever returns; never observed live.
-   - **Still open (found in this same investigation, separate brief written but not yet run):** `reconnect_loop` calls `connect()` directly on the event loop — even with the watchdog, a stalled attempt can freeze voice/WebSocket for up to 10s. Fix (`asyncio.to_thread`) identified, not yet applied. See [[07-Bug-Log]].
-   - **Also still open, same brief:** the *adjacent* leak (if `AircraftRequests()`/`Request()` raises after `SimConnect()` succeeds), and `stop_polling()`'s silent `except Exception: pass`.
+**Confirmed real, original bug:** `connect()`'s verification-read-returns-`None` branch dropped `self._sm` **without calling `exit()`** — leaks a handle + daemon dispatch thread per failed attempt. ~12 leaks/minute if hit repeatedly (5s retry interval) — but likely does NOT affect the main-menu scenario specifically, since MSFS keeps answering polls there and `connect()` succeeds without retrying. The leak needs a state where the handle opens but the sim doesn't answer (e.g. mid-load).
+
+All identified gaps in this area are now closed, across two briefs:
+
+1. **No timeout on the underlying wait — ✅ FIXED.** `python-SimConnect`'s `SimConnect()` constructor has an unbounded `while self.ok is False: pass` (confirmed directly against the pinned 0.4.26 wheel's source). A 10-second watchdog was added: on timeout, the wheel's own `ok` flag is set so the spin loop exits and the handle closes (no thread pile-up per retry, confirmed via a 3-timeouts-in-a-row test). Integrates cleanly with `reconnect_loop`'s existing retry. **One residual limit:** a worker stuck inside a native `Open` call can only be abandoned, not killed — closes its own handle if the call ever returns; never observed live.
+2. **Adjacent leak — ✅ FIXED.** Failures at all three exit points (verification-read-None, verification-read-exception, `AircraftRequests()`/`Request()` raising) now route through one `_abandon_attempt()` helper, using `_release_simconnect()` internally (catches both `AttributeError` and `OSError` — the wheel's `SimConnect_Close` has `restype=HRESULT`, so a failed close can raise `OSError`, which would otherwise escape and kill `reconnect_loop`).
+3. **Silent swallow — ✅ FIXED.** `stop_polling()` now logs a WARNING on cleanup failure (kept the catch deliberately broad — narrowing it risks skipping `chartfox.close()`/`ws_server.stop()`, which run right after in `main.stop()`).
+4. **Unguarded verification read — ✅ FIXED.** Now guarded, treated as an ordinary failed connection attempt; `reconnect_loop` survives a raising read.
+5. **Event-loop stall — ✅ FIXED.** `reconnect_loop` now calls `await asyncio.to_thread(self.connect)` — a stalled attempt no longer blocks voice/WebSocket. Confirmed via a test that a concurrent coroutine keeps running during a stall.
+6. **`stop_polling()`'s never-polled-handle leak — ✅ FIXED (most recent brief).** `if not self._running: ...; return` was skipping the entire handle-cleanup block, so `connect()` succeeding without a subsequent `start_polling()` left the handle open forever. Fixed via a new `_close_handle()` helper (same shared-helper pattern as `_abandon_attempt()`), while keeping the thread-join logic correctly gated on `self._running` for the normal path. Deliberately kept the *broader* exception catch here too, for the same `main.stop()` reason as item 3.
+
+**Test coverage:** 97 SimConnect tests (post-robustness-brief) → 102 tests (post-never-polled-handle fix), all passing, ~32 written test-first (confirmed failing on unfixed code before the fix).
+
+**⚠️ MSFS 2020 live retest of ALL of the above is still outstanding** — nothing in this section has run against a real sim yet. When testing: run the provided one-liner script, test with MSFS closed, launch MSFS, close/reopen it, and specifically test a shutdown right after a successful connect (before `start_polling()` runs) to exercise the newest fix.
+
+**Residual, not-yet-fixed, low-priority:** if `reconnect_loop` is cancelled mid-attempt, the worker thread still finishes (up to 10s) before shutdown completes — same worst case as the old fully-blocking behavior, not worse, just not eliminated.
 
 ## Confirmed-Fixed Behaviors — DO NOT REVERT
 | Field | Correct behavior |
@@ -52,9 +58,9 @@ tags: [architecture, simconnect]
 ## MSFS 2024 Compatibility
 See [[MSFS-2024-Support]]. All 25+ SimVars this project reads are **confirmed identical** in value/unit/semantics between 2020 and 2024, live-tested. Same pinned wheel works unmodified. No sim-version detection/branching needed anywhere in the codebase.
 
-**Dual-support formalized** (`feat/formalize-dual-sim-support`, committed): `CLAUDE.md` now has a "Supported simulators" section; `docs/sdk/simconnect-variables.md` has detailed variance notes. Three real, documented differences between 2020/2024 (none requiring code changes):
+**Dual-support formalized** (`feat/formalize-dual-sim-support`, merged): `CLAUDE.md` now has a "Supported simulators" section; `docs/sdk/simconnect-variables.md` has detailed variance notes. Three real, documented differences between 2020/2024 (none requiring code changes):
 1. AI-traffic state behaves differently (relevant to [[AI-FSLTL-Traffic]] later)
 2. Some default 2024 aircraft have external-power/APU telemetry issues — same class already handled by `POWER_TELEMETRY_FALLBACK_POLLS`
 3. **`CAMERA STATE` enum numbering differs between sim versions** (e.g. `9` = "Showcase" in 2020, "Waiting" in 2024) — this is why [[Flight-Load-Gate]] deliberately only checks the two values that mean the same in both sims (`{2, 3}`), not a menu-value list.
 
-**MSFS 2020 live retest of the watchdog fix itself is still outstanding** — code is committed, not yet run against a real sim.
+**MSFS 2020 live retest of the watchdog fix itself is still outstanding** — bundled with the broader connection-robustness retest above.
