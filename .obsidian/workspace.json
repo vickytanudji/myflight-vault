@@ -1,42 +1,14 @@
 {
   "main": {
-    "id": "093a08212190b31b",
+    "id": "1415af0b5f3995f3",
     "type": "split",
     "children": [
       {
-        "id": "6273d66bfcfa99c7",
+        "id": "75de0c4cc53a07e1",
         "type": "tabs",
         "children": [
           {
-            "id": "778732c781dec595",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "03-Testing/Frequency-Tuning-Retest-Checklist.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Frequency-Tuning-Retest-Checklist"
-            }
-          },
-          {
-            "id": "107c94b62d2ec4fa",
-            "type": "leaf",
-            "state": {
-              "type": "split-diff-view",
-              "state": {
-                "aFile": "03-Testing/Next-Test-Session-Guide.md",
-                "bFile": "03-Testing/Next-Test-Session-Guide.md",
-                "aRef": ""
-              },
-              "icon": "diff",
-              "title": "Diff: Next-Test-Session-Guide  (Working Tree)"
-            }
-          },
-          {
-            "id": "db35537ce99b1c5c",
+            "id": "26a428cb174991e4",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -48,29 +20,42 @@
               "icon": "lucide-file",
               "title": "Next-Test-Session-Guide"
             }
+          },
+          {
+            "id": "efc2dac8cf1b49ba",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "11-Next Big Breif for Claude Code Web.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "11-Next Big Breif for Claude Code Web"
+            }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
   },
   "left": {
-    "id": "466965067630a9f6",
+    "id": "cc24d9ba52fe19e0",
     "type": "split",
     "children": [
       {
-        "id": "8efe7de68c7da917",
+        "id": "038f4b0913b491b7",
         "type": "tabs",
         "children": [
           {
-            "id": "11847e48d52e620e",
+            "id": "f8e3019202171dfc",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": true,
+                "autoReveal": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
@@ -79,7 +64,7 @@
             }
           },
           {
-            "id": "bb93ad029a98a3c3",
+            "id": "b031f68295fc0045",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -96,11 +81,14 @@
             }
           },
           {
-            "id": "8ba9f24ccf119386",
+            "id": "1c59b9e5b6530e42",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
-              "state": {},
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
               "icon": "lucide-bookmark",
               "title": "Bookmarks"
             }
@@ -112,20 +100,20 @@
     "width": 300
   },
   "right": {
-    "id": "893ab16aee34f74c",
+    "id": "a9951fbf7b2b74f2",
     "type": "split",
     "children": [
       {
-        "id": "026c38cd6d9b6041",
+        "id": "d727b84a36cf3efe",
         "type": "tabs",
         "children": [
           {
-            "id": "d087c9e5057d6da8",
+            "id": "b75d45d1a14bed0d",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
-                "file": "02-Roadmap.md",
+                "file": "03-Testing/Next-Test-Session-Guide.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -135,25 +123,25 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for 02-Roadmap"
+              "title": "Backlinks"
             }
           },
           {
-            "id": "f9f8430bedb2acd0",
+            "id": "7a4954472e818c83",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "02-Roadmap.md",
+                "file": "03-Testing/Next-Test-Session-Guide.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from 02-Roadmap"
+              "title": "Outgoing links"
             }
           },
           {
-            "id": "d909fa0879330739",
+            "id": "29bdcca65086e325",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -168,7 +156,7 @@
             }
           },
           {
-            "id": "ea3945f94ff0f5c3",
+            "id": "c2cafe5829e77d29",
             "type": "leaf",
             "state": {
               "type": "all-properties",
@@ -182,7 +170,7 @@
             }
           },
           {
-            "id": "c4e0849737c2e9f2",
+            "id": "f5c9591745d58b81",
             "type": "leaf",
             "state": {
               "type": "outline",
@@ -197,7 +185,7 @@
             }
           },
           {
-            "id": "0de2bda7d27476d7",
+            "id": "198b50f3ee7ba7c9",
             "type": "leaf",
             "state": {
               "type": "git-view",
@@ -225,25 +213,34 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "db35537ce99b1c5c",
+  "active": "26a428cb174991e4",
   "lastOpenFiles": [
-    "conflict-files-obsidian-git.md",
-    "03-Testing/Next-Test-Session-Guide.md",
-    "00-Home.md",
-    "03-Testing/Frequency-Tuning-Retest-Checklist.md",
+    "11-Next Big Breif for Claude Code Web.md",
     "01-Whats-Happening.md",
+    "03-Testing/Next-Test-Session-Guide.md",
+    "conflict-files-obsidian-git.md",
+    "00-Home.md",
+    "09-Standing-Reminders.md",
     "03-Testing/Test-Setup-And-Methodology.md",
+    "03-Testing/Frequency-Tuning-Retest-Checklist.md",
+    "10-Workflow.md",
     "02-Roadmap.md",
+    "01-Architecture/SimConnect-Client.md",
+    "01-Architecture/Phase-Detector.md",
+    "01-Architecture/Readback-Gating.md",
+    "01-Architecture/Frequency-Tuned-Dispatch.md",
+    "01-Architecture/Flight-Load-Gate.md",
+    "01-Architecture/ATC-Engine.md",
+    "02-Investigations/MSFS-2024-Support.md",
     "01-Overview.md",
     "07-Bug-Log.md",
     "08-Gotchas-And-Quirks.md",
-    "09-Standing-Reminders.md",
-    "10-Workflow.md",
-    "01-Architecture/SimConnect-Client.md",
-    "Untitled",
-    "01-Architecture/Flight-Load-Gate.md",
-    "01-Architecture/ATC-Engine.md",
-    "01-Architecture/Readback-Gating.md",
-    "01-Architecture/Phase-Detector.md"
+    "Untitled.canvas",
+    "02-Investigations/ChartFox-Procedures-Taxiways.md",
+    "02-Investigations/Center-Frequencies.md",
+    "02-Investigations/AI-FSLTL-Traffic.md",
+    "03-Testing",
+    "02-Investigations",
+    "01-Architecture"
   ]
 }
