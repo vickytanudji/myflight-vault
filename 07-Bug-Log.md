@@ -6,6 +6,43 @@ tags: [bugs, history]
 
 Chronological, most-recent-relevant first. Each entry: symptom → root cause → fix → live-confirmation status.
 
+## Readback frequency format rejected valid real-world speech
+**Symptom:** a genuinely correct readback ("...contact center 127, decimal 5.") was rejected as missing the frequency element. Five other attempts with real STT garbling also failed in the same session, but this one proved the gap wasn't just noisy STT.
+**Root cause:** frequency matching only accepted the fully spelled-out TTS form or the exact literal "127.500" — never received the format-tolerance treatment squawk/SID got earlier.
+**Fix:** frequency now uses the same span-finder approach as runway — digits read back via the shared tokenizer, compared against the expected value. Accepts separated words, "127, decimal 5", "127.5", "point", decimal dropped entirely. Wrong frequencies still rejected.
+**Status:** ✅ Confirmed fixed live (2026-09-27) — exact original failing transcript now accepted, alongside several other real natural phrasings across multiple phases.
+**See:** [[Readback-Gating]]
+
+## Misheard "decimal" (STT homophone noise) broke frequency readback
+**Symptom:** "1-2-7-disable 5" and "127 deserts" (STT mishearing "decimal") both rejected.
+**Fix:** any single non-digit word sitting exactly between the expected whole-digits and fraction-digits is accepted as the decimal separator, EXCEPT words that start another instruction (runway, heading, squawk, etc.) — prevents "heading 127, runway 5" false-matching. Both digit groups must already match the assigned value, so this can never turn a wrong frequency into a right one.
+**Deliberate non-fix:** "127 deserts" alone (no fraction digit at all) still correctly rejected — accepting it would mean ANY frequency from 127.1–127.9 passes, which loosens correctness, not format.
+**Status:** ✅ Confirmed fixed live (2026-09-27) for the "disable" case; "deserts"-alone case confirmed correctly still rejected, by design.
+**See:** [[Readback-Gating]]
+
+## Callsign readback rejected valid real-world speech (root cause was the shared tokenizer, not the callsign matcher)
+**Symptom:** "United 842, 10,000 feet, 1, 2, 7, decimal 5." rejected as missing BOTH callsign and altitude, despite the callsign being clearly stated.
+**Root cause (different from initial assumption):** the callsign matcher itself already accepted "United 842" — the actual bug was in the SHARED tokenizer, which stripped every comma and merged adjacent numeral runs, turning "842, 10,000" into one corrupted token "84210000," breaking callsign AND altitude parsing simultaneously. This explains why the original log showed both elements missing at once.
+**Fix:** numbers either side of a comma now only merge when both sides are single digits ("8, 4, 2" and "1, 2, 7" still merge; "842, 10,000" does not) — thousands-comma stripping unaffected. Also added: callsign flight-number now reads through the same digit-word tables as frequency ("eight forty-two", "842", "8-4-2", "8, 4, 2" all match), for both the SimConnect-derived callsign and `DEFAULT_CALLSIGN_OVERRIDE`.
+**Deliberately NOT loosened:** airline name stays an exact match — "We added 842" (STT garbling "United") still correctly rejected (measured similarity 0.364, vs. 0.727 for an unrelated real airline name "unity" — no threshold could accept the garble without risking accepting a genuinely different airline).
+**Known trade-off:** a squawk/altitude read back as comma-separated multi-digit chunks (e.g. "45, 21") no longer merges. Not observed in any real log yet.
+**Status:** ✅ Confirmed fixed live (2026-09-27) — exact original failing transcript pattern now accepted on real speech, multiple times, across phases.
+**See:** [[Readback-Gating]]
+
+## Stale readback never cleared on an ordinary (non-re-arm) phase advance
+**Symptom:** DEPARTURE's readback stayed "pending" for two minutes after the phase had already naturally advanced to APPROACH — only papered over by the multi-pending router guessing correctly both times.
+**Root cause:** the existing supersession-cleanup log line only fired on a phase re-arm (e.g. go-around); a normal sequential advance never triggered equivalent cleanup.
+**Fix:** any pending readback two or more phases earlier than the one that just played is now abandoned via the same cleanup helper. Adjacent phases (Clearance+Ground) deliberately stay simultaneously pending — a stricter rule would have broken that legitimate case.
+**Status:** ✅ Confirmed fixed live (2026-09-27).
+**See:** [[Readback-Gating]]
+
+## Automatic speed-based takeoff clearance — redesigned to manual-only
+**Symptom/motivation:** the 40kt IAS threshold for firing the takeoff-clearance transmission could still, per the earlier B2 hysteresis fix's own documented residual risk, fire prematurely on a windy fast taxi-out. Separately, investigation surfaced a real bug: a session started airborne fired "cleared for take-off" at touchdown during landing rollout.
+**Investigated first:** `ON_ANY_RUNWAY` as a position-based alternative — confirmed unreliable (missing from the pinned SimConnect wrapper, two open MSFS DevSupport bug reports on both 2020 and 2024 showing it reads False even while on a runway). Investigation correctly stopped rather than building on this.
+**Fix:** automatic dispatch removed entirely. Replaced with a manual `request_takeoff_clearance` WebSocket trigger and a PTT voice phrase ("ready for departure" and variants), both following the existing `request_clearance` precedent. The airborne-start touchdown bug is fixed as a natural side effect, no special-case code needed.
+**Status:** ✅ WebSocket trigger and voice-phrase trigger both confirmed live (2026-09-27), including cross-trigger one-shot-guard sharing. Airborne-start-bug live retest and go-around/readback-interaction sanity check deferred (not urgent, not skipped).
+**See:** [[ATC-Engine]], [[Position-Based-Takeoff-Clearance]]
+
 ## `handle_pilot_transmission` silently swallowed LLM errors, returning `""`
 **Status:** ✅ Fixed, merged. **Confirmed symptom first:** `_voice_loop` only synthesizes/plays `if response:` — an empty string is genuinely silent, not some other visible failure.
 **Fix:** the except-block now returns `SAY_AGAIN_FALLBACK_TRANSMISSION = "Say again."` (new frozen phraseology constant, `docs/phraseology_reference.md` §11, PROVISIONAL confidence like the existing §10 correction template) instead of `""`. Deliberately generic/non-phase-specific — the failure can occur before any phase data resolves, so inventing phase-specific content risks the same fabrication-under-uncertainty problem the earlier adversarial-testing fix addressed. "Say again" chosen over "stand by" because it actually prompts a retry rather than leaving the pilot hanging with nothing to do. Error logging (`logger.exception`, `send_error`) unchanged.
