@@ -7,6 +7,7 @@ tags: [bugs, history]
 Chronological, most-recent-relevant first. Each entry: symptom → root cause → fix → live-confirmation status.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Readback frequency format rejected valid real-world speech
 **Symptom:** a genuinely correct readback ("...contact center 127, decimal 5.") was rejected as missing the frequency element. Five other attempts with real STT garbling also failed in the same session, but this one proved the gap wasn't just noisy STT.
 **Root cause:** frequency matching only accepted the fully spelled-out TTS form or the exact literal "127.500" — never received the format-tolerance treatment squawk/SID got earlier.
@@ -44,6 +45,8 @@ Chronological, most-recent-relevant first. Each entry: symptom → root cause �
 **Status:** ✅ WebSocket trigger and voice-phrase trigger both confirmed live (2026-09-27), including cross-trigger one-shot-guard sharing. Airborne-start-bug live retest and go-around/readback-interaction sanity check deferred (not urgent, not skipped).
 **See:** [[ATC-Engine]], [[Position-Based-Takeoff-Clearance]]
 
+=======
+>>>>>>> origin/main
 =======
 >>>>>>> origin/main
 ## APPROACH↔TOWER_ARRIVAL flapping (real, sustained oscillation on ordinary descents)

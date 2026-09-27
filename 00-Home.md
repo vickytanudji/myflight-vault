@@ -51,11 +51,15 @@ Test environment: YSSY, manual callsign override cleared (real callsign path), P
 **All bugs from both combined fix briefs are resolved and merged**: Go-Around test was stale (no real bug), LLM-skip gap fixed, pilot-transmission silent-failure fallback fixed, `_run_or_skip` narrowed correctly.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 **✅ Readback matching hardened across the board, all live-confirmed (2026-09-27):** frequency format tolerance ("127, decimal 5", "127.5" all now match "127.500"), misheard "decimal" homophones, and callsign flight-number format tolerance ("842" now matches "eight forty-two") — the callsign bug's real root cause turned out to be the shared tokenizer corrupting comma-separated numbers, not the callsign matcher itself. Stale readbacks now correctly clear on an ordinary phase advance, not just a re-arm.
 
 **✅ Automatic takeoff-clearance dispatch replaced with manual-only (2026-09-27), live-confirmed.** Investigated `ON_ANY_RUNWAY` as a position-based alternative first — confirmed unreliable (missing from the SimConnect wrapper, two open MSFS bug reports) — and correctly stopped rather than building on it. Implemented a WebSocket trigger and a PTT voice phrase ("ready for departure") instead, following the existing manual-clearance pattern. Fixes a real bug as a side effect: sessions started airborne no longer fire a takeoff clearance at touchdown.
 
 **Still owed:** frequency-tuning scenario (e) on a longer flight; AI/FSLTL traffic probe live run; MSFS 2024 camera-state value for the flight-load gate; a full `core.main` connection-robustness retest (beyond the already-confirmed one-liner); two deferred (not urgent) manual-takeoff-clearance tests — see [[09-Standing-Reminders]].
+=======
+**Still owed:** frequency-tuning scenario (e) on a longer flight; AI/FSLTL traffic probe live run; MSFS 2024 camera-state value for the flight-load gate; a full `core.main` connection-robustness retest (beyond the already-confirmed one-liner).
+>>>>>>> origin/main
 =======
 **Still owed:** frequency-tuning scenario (e) on a longer flight; AI/FSLTL traffic probe live run; MSFS 2024 camera-state value for the flight-load gate; a full `core.main` connection-robustness retest (beyond the already-confirmed one-liner).
 >>>>>>> origin/main

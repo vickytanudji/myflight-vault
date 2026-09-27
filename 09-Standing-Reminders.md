@@ -5,10 +5,13 @@ tags: [todo, reminders]
 # Standing Reminders — Check This Before Signing Off Each Session
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Deferred, Not Urgent (explicitly deprioritized 2026-09-27)
 - [ ] **Manual takeoff clearance — Tests 3 & 4** — Test 3 (confirm the airborne-start touchdown bug is actually fixed live, not just via the mocked regression test) and Test 4 (sanity-check go-around/Ground-readback interactions are unaffected). Watch for opportunistically, not a priority. See [[ATC-Engine]].
 - [ ] **New phase-detector anomaly observed (2026-09-27), not yet investigated:** a `DEPARTURE → TOWER_DEPARTURE` transition logged at 4,240ft while climbing (`on_ground=True` in the transition inputs at that altitude) — looks like a possible SimConnect telemetry glitch or `poll_sequence` artifact, not a clear rule-match. Only observed once, immediately self-corrected. Watch for recurrence before investigating further.
 
+=======
+>>>>>>> origin/main
 =======
 >>>>>>> origin/main
 ## Owed Live Tests
