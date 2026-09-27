@@ -38,5 +38,7 @@ Connection watchdog (10s) added to production `client.py`, committed on `feat/fo
 
 ## Still Owed
 - MSFS 2020 live retest of the watchdog fix (one-liner Python script provided in the brief output)
-- MSFS 2024 cold-and-dark camera-state value for [[Flight-Load-Gate]] — never tested (the smoke test never actually read `CAMERA STATE`)
 - Two related connection-robustness gaps found during this same work, spun into a separate not-yet-run brief — see [[07-Bug-Log]]
+
+## ✅ MSFS 2024 Camera-State Confirmation — Done (2026-09-27)
+Cold-and-dark cockpit on MSFS 2024 reads `CAMERA STATE = 2`, identical to 2020's cockpit value. Real transition sequence observed: `12 → 35 → 32 → 30 → 16 → 2` — confirms 2024's intermediate loading-state numbering does genuinely differ (validating the earlier decision not to build a menu-value list), while the two shared gate-trigger values (`{2, 3}`) work correctly unmodified. See [[Flight-Load-Gate]] for full detail.

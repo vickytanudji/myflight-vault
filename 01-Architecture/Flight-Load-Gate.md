@@ -38,6 +38,10 @@ The manual `request_clearance` trigger originally only checked staleness, which 
 - ✅ Gate opens correctly on reaching cockpit (camera state 2)
 - ✅ Manual trigger works normally once loaded
 
-## Still Unknown
-- What camera state a cold-and-dark **MSFS 2024** load reports (2020 confirmed only)
-- Whether "Ready to Fly" reports state 2 *before* pressing "Fly" (not deliberately tested — real-world usage tonight didn't show it opening prematurely, treated as good-enough confirmation)
+## Live-Confirmed (MSFS 2024, 2026-09-27)
+- ✅ Cold-and-dark cockpit reads `CAMERA STATE = 2` — same value as MSFS 2020's cockpit view. Gate opened correctly ("Flight load detected... confirmed over 3 consecutive polls"), ATIS pipeline started right on cue.
+- Real transition sequence observed: `12 → 35 → 32 → 30 → 16 → 2` — confirms 2024's intermediate loading-state numbering genuinely differs from 2020's (as the dual-support investigation predicted), but the two values the gate actually checks (`{2, 3}`) are shared correctly across both sims. No code change was needed.
+- `ATC RUNWAY AIRPORT NAME` display-name behavior also confirmed present on 2024 in this same session, consistent with the already-documented finding.
+
+## Formerly Unknown, Now Resolved
+- ~~What camera state a cold-and-dark MSFS 2024 load reports~~ — confirmed above, `{2, 3}` gate design validated on both sims
