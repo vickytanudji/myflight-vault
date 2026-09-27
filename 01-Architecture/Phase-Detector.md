@@ -33,7 +33,7 @@ If `external_power_on`/`apu_pct_rpm` never populate at all after 60 consecutive 
 - **Go-around detection** — `GO_AROUND_CONFIRM_POLLS = 5`, Rule 0 holds phase based on the *current poll's own* vs/on-ground signature (not accumulated streak) — this distinction is the actual fix for the historic go-around priority race bug.
 - **Exact-zero quorum gate** — rejects polls where ≥3 of {gs, ias, alt, vs} are exactly 0.0 simultaneously while engines running (catches implausible sensor glitches).
 
-## Rule Table (unchanged this session except Rules 1–3)
+## Rule Table (Rules 1–3 redesigned earlier this project; Rules 7–8's boundary since hardened, see below)
 | Rule | Condition | Result |
 |---|---|---|
 | 0 | current phase ∈ GO_AROUND_ELIGIBLE, airborne, vs > climb threshold | hold current phase |
@@ -41,7 +41,31 @@ If `external_power_on`/`apu_pct_rpm` never populate at all after 60 consecutive 
 | 2 | on ground, no engines, ground/APU power active (debounced) | CLEARANCE |
 | 3 | on ground, engines running | GROUND |
 | 4 | on ground, ias ≥ 40kt | TOWER_DEPARTURE |
-| 5–8 | airborne rules (unchanged) | DEPARTURE / ENROUTE / APPROACH / TOWER_ARRIVAL |
+| 5–6 | airborne rules (unchanged) | DEPARTURE / ENROUTE |
+| 7 | airborne, vs≤-500fpm | APPROACH |
+| 8 | airborne, vs≤-200fpm, alt<2500ft | TOWER_ARRIVAL |
+
+## APPROACH ↔ TOWER_ARRIVAL Boundary Hardening (2026-09-25) — ✅ fixed, live-confirmed twice
+
+Rule 7's altitude condition is a superset of Rule 8's, so TOWER_ARRIVAL can only ever be reached in the narrow (-500,-200] vs band — and real descent vertical speed genuinely, repeatedly oscillates across -500fpm from ordinary control/sensor noise. Confirmed via two real flights with meaningfully different noise widths (~-401 to -661 on one; ~-327 to -933 on another).
+
+**A first fix (a flat +200fpm hysteresis margin, reverting to APPROACH only below -700fpm) was insufficient** — tuned against one sample, failed live against a wider second one. The real fix combines:
+- **`VS_BOUNDARY_HYSTERESIS_FPM = 600.0`** — revert-to-APPROACH threshold is now -1100fpm, not -500fpm
+- **`VS_BOUNDARY_REVERSAL_DEBOUNCE_POLLS = 4`** — the reversal-worthy vs value must hold for 4 consecutive polls (smaller than `GO_AROUND_CONFIRM_POLLS`'s 5, larger than the generic 2-poll debounce already proven insufficient here)
+
+Reasoning: a transient noise spike is short-lived; a genuine reversal (real climb/level-off) is sustained by definition. Combining a magnitude check with a duration check generalizes better to an unseen third approach than scaling magnitude alone — the required margin had already grown ~2.5x between just two samples with no evident ceiling, so a bigger fixed number alone was the same failed reasoning at larger scale.
+
+**Live-confirmed twice, zero flapping on real descents.** Notably, one genuine sustained reversal (-1759fpm, a real level-off) was correctly let through as a real transition rather than blocked — confirms the fix doesn't over-suppress legitimate reversals.
+
+## Missed Go-Around via a Brief On-Ground Blip (2026-09-25) — ✅ fixed, live-confirmed twice
+
+A real go-around during a low pass can produce a single `on_ground=True` poll at very low altitude, high ground speed, still-negative vertical speed — internally consistent enough to pass the speed-divergence gate (only a 30kt threshold) and the altitude-continuity check (deliberately skipped on any on-ground flip, to avoid the historic frozen-baseline bug). Per the rule table, this single poll matches Rule 4 (TOWER_DEPARTURE), which is NOT in `GO_AROUND_ELIGIBLE_PHASES` — so the subsequent climb was read as an ordinary takeoff instead of a go-around.
+
+**Investigated first: neither existing gate was ever meant to catch this** — both work exactly as designed for their own purposes; this was a genuinely new real-world case, not a bug in an existing mechanism.
+
+**Fix:** new `_go_around_eligible()` helper — `TOWER_DEPARTURE` is treated as go-around-eligible too, specifically when the immediately-preceding confirmed phase was APPROACH/TOWER_ARRIVAL/GO_AROUND. `GO_AROUND_ELIGIBLE_PHASES` itself is untouched. Real takeoffs (always preceded by GROUND) and real landings (never leave `on_ground=True`) are structurally excluded from the change, not just assumed safe.
+
+**Live-confirmed twice** — the easy case (a go-around that stays airborne throughout, direct `TOWER_ARRIVAL → GO_AROUND`) and the hard blip case (`TOWER_ARRIVAL → TOWER_DEPARTURE → GO_AROUND`) both confirmed working on real flights.
 
 ## See Also
 - [[Flight-Load-Gate]] — gates *when* the detector starts being fed real data at all

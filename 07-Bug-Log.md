@@ -26,7 +26,7 @@ Chronological, most-recent-relevant first. Each entry: symptom → root cause �
 **Fix:** numbers either side of a comma now only merge when both sides are single digits ("8, 4, 2" and "1, 2, 7" still merge; "842, 10,000" does not) — thousands-comma stripping unaffected. Also added: callsign flight-number now reads through the same digit-word tables as frequency ("eight forty-two", "842", "8-4-2", "8, 4, 2" all match), for both the SimConnect-derived callsign and `DEFAULT_CALLSIGN_OVERRIDE`.
 **Deliberately NOT loosened:** airline name stays an exact match — "We added 842" (STT garbling "United") still correctly rejected (measured similarity 0.364, vs. 0.727 for an unrelated real airline name "unity" — no threshold could accept the garble without risking accepting a genuinely different airline).
 **Known trade-off:** a squawk/altitude read back as comma-separated multi-digit chunks (e.g. "45, 21") no longer merges. Not observed in any real log yet.
-**Status:** ✅ Confirmed fixed live (2026-09-27) — exact original failing transcript pattern now accepted on real speech, multiple times, across phases.
+**Status:** ✅ Confirmed fixed live (2026-09-27) — exact original failing transcript pattern now accepted on real speech, multiple times, across phases ("United 8-42 taxi to holding point 1-1-6 left," "United 842, 10,000 feet, contact center, 1 2 7.5" — the latter also confirms the frequency fix and the tokenizer fix working together on one real, messy utterance).
 **See:** [[Readback-Gating]]
 
 ## Stale readback never cleared on an ordinary (non-re-arm) phase advance
@@ -42,6 +42,19 @@ Chronological, most-recent-relevant first. Each entry: symptom → root cause �
 **Fix:** automatic dispatch removed entirely. Replaced with a manual `request_takeoff_clearance` WebSocket trigger and a PTT voice phrase ("ready for departure" and variants), both following the existing `request_clearance` precedent. The airborne-start touchdown bug is fixed as a natural side effect, no special-case code needed.
 **Status:** ✅ WebSocket trigger and voice-phrase trigger both confirmed live (2026-09-27), including cross-trigger one-shot-guard sharing. Airborne-start-bug live retest and go-around/readback-interaction sanity check deferred (not urgent, not skipped).
 **See:** [[ATC-Engine]], [[Position-Based-Takeoff-Clearance]]
+
+## APPROACH↔TOWER_ARRIVAL flapping (real, sustained oscillation on ordinary descents)
+**Symptom:** repeated rapid cycling between APPROACH and TOWER_ARRIVAL during normal, unremarkable descents into YSSY — up to 4+ cycles per minute.
+**Root cause confirmed:** Rule 7 (APPROACH: vs<=-500fpm) and Rule 8 (TOWER_ARRIVAL: vs<=-200fpm, alt<2500) share an overlapping vs band; since Rule 7's altitude condition is a superset of Rule 8's, TOWER_ARRIVAL can only ever be reached in the narrow (-500,-200] band. Real descent vertical speed genuinely oscillates across -500fpm from ordinary control/sensor noise — confirmed via two separate real flights with materially different noise widths (~-401 to -661 on one, ~-327 to -933 on another, nearly 300fpm wider).
+**First fix attempt — insufficient:** a fixed one-sided hysteresis margin (200fpm, requiring vs<=-700 to revert to APPROACH) was tuned against only the first sample and failed live against the second, wider sample.
+**Real fix:** combined a wider magnitude margin (600fpm, revert threshold -1100fpm) WITH a boundary-specific reversal debounce (4 consecutive polls) — reasoned explicitly that transient noise is a short-lived spike while a genuine reversal is sustained by definition, so combining magnitude and duration generalizes better than scaling magnitude alone (the required margin had already grown ~2.5x between just two samples with no evident ceiling).
+**Status:** ✅ Confirmed fixed live across TWO independent full flights. Notably, one genuine sustained reversal (-1759fpm, a real level-off) was correctly allowed through as a real transition, not blocked — confirming the fix doesn't over-suppress legitimate reversals.
+
+## Missed go-around via a brief on-ground blip
+**Symptom:** a real go-around performed during a low pass was never detected as GO_AROUND at all — the aircraft's `on_ground` reading flipped briefly to `True` at very low altitude with high ground speed and still-negative vertical speed, and the phase detector read the subsequent climb as an ordinary takeoff (`TOWER_ARRIVAL → TOWER_DEPARTURE → DEPARTURE`) instead of a go-around.
+**Root cause confirmed as a genuinely new case, not a broken existing gate:** the speed-divergence gate's 30kt threshold and the deliberate altitude-continuity skip-on-ground-flip (needed to avoid the historic frozen-baseline bug) both worked exactly as designed for their own purposes — neither was meant to catch this specific real-world scenario.
+**Fix:** new `_go_around_eligible()` helper — `TOWER_DEPARTURE` is now also treated as go-around-eligible when the immediately-preceding confirmed phase was APPROACH/TOWER_ARRIVAL/GO_AROUND. Real takeoffs (always preceded by GROUND) and real landings (never leave `on_ground=True`) are structurally unaffected.
+**Status:** ✅ Confirmed fixed live across TWO independent flights — both the easy case (a go-around that stays airborne the whole time, direct `TOWER_ARRIVAL → GO_AROUND`) and the hard blip case (`TOWER_ARRIVAL → TOWER_DEPARTURE → GO_AROUND`) confirmed working.
 
 ## `handle_pilot_transmission` silently swallowed LLM errors, returning `""`
 **Status:** ✅ Fixed, merged. **Confirmed symptom first:** `_voice_loop` only synthesizes/plays `if response:` — an empty string is genuinely silent, not some other visible failure.
