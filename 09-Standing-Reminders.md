@@ -4,20 +4,13 @@ tags: [todo, reminders]
 
 # Standing Reminders — Check This Before Signing Off Each Session
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 ## Deferred, Not Urgent (explicitly deprioritized 2026-09-27)
 - [ ] **Manual takeoff clearance — Tests 3 & 4** — Test 3 (confirm the airborne-start touchdown bug is actually fixed live, not just via the mocked regression test) and Test 4 (sanity-check go-around/Ground-readback interactions are unaffected). Watch for opportunistically, not a priority. See [[ATC-Engine]].
 - [ ] **New phase-detector anomaly observed (2026-09-27), not yet investigated:** a `DEPARTURE → TOWER_DEPARTURE` transition logged at 4,240ft while climbing (`on_ground=True` in the transition inputs at that altitude) — looks like a possible SimConnect telemetry glitch or `poll_sequence` artifact, not a clear rule-match. Only observed once, immediately self-corrected. Watch for recurrence before investigating further.
 
-=======
->>>>>>> origin/main
-=======
->>>>>>> origin/main
 ## Owed Live Tests
-- [ ] **Full `core.main` connection-robustness retest** — beyond the one-liner script (confirmed 3/3). Launch → close MSFS → reopen, and specifically a shutdown right after a successful connect but before `start_polling()` runs — this exercises the never-polled-handle fix, not yet tested live.
 - [ ] **Frequency-tuning scenario (e)** — Center-sparse fallback (Enroute) + Departure/Go-Around real-frequency requirement. Needs a longer flight past Ground/Tower Departure. Scenarios (a)-(d) all confirmed. See [[Frequency-Tuning-Retest-Checklist]]. Note: Enroute's `CENTER` frequency-gate requirement is unchanged by the content fix — it gates on the *speaking controller's* frequency, not on what the transmission text says (see [[SimConnect-Client]] / frequency_gate.py's own documented design), and CENTER data is still sparse for YSSY, so this will likely still fall through to "satisfied" most of the time.
-- [ ] **Full `core.main` connection-robustness retest** — beyond the already-confirmed one-liner (3/3 clean, `timerThread` regression stays fixed): launch → close MSFS → reopen, with `core.main` running throughout, to confirm the full reconnect cycle (not just the disconnect side, which is already confirmed).
+- [ ] **Full `core.main` connection-robustness retest** — beyond the already-confirmed one-liner (3/3 clean, `timerThread` regression stays fixed): launch → close MSFS → reopen, with `core.main` running throughout, to confirm the full reconnect cycle (not just the disconnect side, which is already confirmed) — this also exercises the never-polled-handle fix, not yet tested live.
 - [ ] **AI/FSLTL traffic probe** — a minimal, default-OFF, passive/logging-only V1 has been implemented (`feat/ai-traffic-awareness-passive-v1`, not yet reviewed/merged) — needs the PC with `TRAFFIC_AWARENESS_ENABLED=true` and real AI traffic density in MSFS to get the first-ever real data point. See [[AI-FSLTL-Traffic]].
 
 ## Small/Cosmetic, No Urgency
@@ -34,5 +27,5 @@ tags: [todo, reminders]
 
 ## Vault / Workflow Housekeeping
 - [ ] This vault lives at `github.com/vickytanudji/myflight-vault` (**public**, no auth needed to read), synced between Mac and PC via Obsidian Git. Claude can edit it directly from either machine via a filesystem connector, depending on which is active in a given session.
-- [ ] **⚠️ Real risk, already occurred once (2026-09-23):** editing the vault from both machines without pushing/pulling in between causes genuine git merge conflicts (nested `<<<<<<< HEAD` markers ended up in the actual file text, requiring manual cleanup). Push after any edit session before switching machines, or before starting a new Claude session on the other machine.
+- [ ] **⚠️ Real risk, recurred multiple times (2026-09-23, 2026-09-27):** editing the vault from both machines without pushing/pulling in between causes genuine git merge conflicts — nested `<<<<<<< HEAD` markers ending up directly in the file text, sometimes stacked 2-3 deep from repeated concurrent edits, requiring manual cleanup each time. **Push after every edit session before switching machines, no exceptions** — this has now cost real cleanup time on two separate occasions.
 - [ ] Any GitHub PAT shared in chat for a push is single-use per session — Claude has no persistent credential storage. Regenerate/revoke tokens after use as a matter of course.

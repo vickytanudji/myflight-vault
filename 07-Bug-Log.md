@@ -6,8 +6,6 @@ tags: [bugs, history]
 
 Chronological, most-recent-relevant first. Each entry: symptom → root cause → fix → live-confirmation status.
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 ## Readback frequency format rejected valid real-world speech
 **Symptom:** a genuinely correct readback ("...contact center 127, decimal 5.") was rejected as missing the frequency element. Five other attempts with real STT garbling also failed in the same session, but this one proved the gap wasn't just noisy STT.
 **Root cause:** frequency matching only accepted the fully spelled-out TTS form or the exact literal "127.500" — never received the format-tolerance treatment squawk/SID got earlier.
@@ -45,10 +43,6 @@ Chronological, most-recent-relevant first. Each entry: symptom → root cause �
 **Status:** ✅ WebSocket trigger and voice-phrase trigger both confirmed live (2026-09-27), including cross-trigger one-shot-guard sharing. Airborne-start-bug live retest and go-around/readback-interaction sanity check deferred (not urgent, not skipped).
 **See:** [[ATC-Engine]], [[Position-Based-Takeoff-Clearance]]
 
-=======
->>>>>>> origin/main
-=======
->>>>>>> origin/main
 ## APPROACH↔TOWER_ARRIVAL flapping (real, sustained oscillation on ordinary descents)
 **Symptom:** repeated rapid cycling between APPROACH and TOWER_ARRIVAL during normal, unremarkable descents into YSSY — up to 4+ cycles per minute.
 **Root cause confirmed:** Rule 7 (APPROACH: vs<=-500fpm) and Rule 8 (TOWER_ARRIVAL: vs<=-200fpm, alt<2500) share an overlapping vs band; since Rule 7's altitude condition is a superset of Rule 8's, TOWER_ARRIVAL can only ever be reached in the narrow (-500,-200] band. Real descent vertical speed genuinely oscillates across -500fpm from ordinary control/sensor noise — confirmed via two separate real flights with materially different noise widths (~-401 to -661 on one, ~-327 to -933 on another, nearly 300fpm wider).
