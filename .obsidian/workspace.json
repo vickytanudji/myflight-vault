@@ -39,14 +39,15 @@
             "id": "db35537ce99b1c5c",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "split-diff-view",
               "state": {
-                "file": "03-Testing/Next-Test-Session-Guide.md",
-                "mode": "source",
-                "source": false
+                "aFile": ".obsidian/workspace.json",
+                "bFile": ".obsidian/workspace.json",
+                "aRef": "HEAD",
+                "bRef": ""
               },
-              "icon": "lucide-file",
-              "title": "Next-Test-Session-Guide"
+              "icon": "diff",
+              "title": "Diff: workspace.json  (Index)"
             }
           }
         ],
@@ -225,11 +226,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "0de2bda7d27476d7",
+  "active": "db35537ce99b1c5c",
   "lastOpenFiles": [
+    "03-Testing/Next-Test-Session-Guide.md",
     "conflict-files-obsidian-git.md",
     "00-Home.md",
-    "03-Testing/Next-Test-Session-Guide.md",
     "11-Next Big Breif for Claude Code Web.md",
     "03-Testing/Frequency-Tuning-Retest-Checklist.md",
     "01-Whats-Happening.md",
